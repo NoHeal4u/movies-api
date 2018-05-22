@@ -13,9 +13,10 @@ class Movies extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        return Movie::all();
+    public function index(Request $request)
+    {   
+        return Movie::Filter($request->title);
+        // return Movie::all();
     }
 
     /**
@@ -35,7 +36,17 @@ class Movies extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
+    {   
+         $validatedData = $request->validate([
+        'title' => 'required|unique:movies|max:255',
+        'director' => 'required',
+        'duration' => 'required|integer|between:1,500',
+        'releaseDate' => 'required',
+        'imageUrl' => 'URL',
+
+
+    ]);
+
         $movie = new Movie();
 
         $movie->title = $request->input('title');
@@ -83,6 +94,15 @@ class Movies extends Controller
     public function update(Request $request, $id)
     {
         $movie = Movie::find($id);
+
+         $validatedData = $request->validate([
+        'title' => 'required|unique:movies|max:255',
+        'director' => 'required',
+        'duration' => 'required|integer|between:1,500',
+        'releaseDate' => 'required',
+        'imageUrl' => 'URL',
+         ]);
+
 
         $movie->title = $request->input('title');
         $movie->director = $request->input('director');
