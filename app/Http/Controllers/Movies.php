@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Movie;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Rules\UniqueMovie;
+use Illuminate\Validation\Rule;
 
 class Movies extends Controller
 {
@@ -14,9 +16,18 @@ class Movies extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
-    {   
-        return Movie::Filter($request->title);
+   {   //dd(Movie::filter($request->title, $request->take, $request->skip));
+        // return Movie::Filter($request->title);
         // return Movie::all();
+        $title = request()->input('title');
+        $skip = request()->input('skip', 0);
+        $take = request()->input('take', Movie::get()->count());
+       
+        if ($title) {
+            return Movie::filter($title, $skip, $take);
+        } else {
+            return Movie::skip($skip)->take($take)->get();
+        }
     }
 
     /**
@@ -36,16 +47,25 @@ class Movies extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {   
-         $validatedData = $request->validate([
-        'title' => 'required|unique:movies|max:255',
-        'director' => 'required',
-        'duration' => 'required|integer|between:1,500',
-        'releaseDate' => 'required',
-        'imageUrl' => 'URL',
+    {   //dd($request->input('releaseDate'));
+        // $inputTitle = $request->input('title');
+        // $inputReleaseDate = $request->input('releaseDate');
+         // dd(Movie::where('releaseDate', '=', $inputReleaseDate)->count());
+
+        $validatedData = $request->validate([
+          // 'title' => ['required', new UniqueMovie( $request)], ovo sam ja napravio ali nije bilo optimalno i error proof
+          'title' => [
+            'required', 
+            Rule::unique('movies')
+                ->where('releaseDate', request('releaseDate')) //optimalan metod iz resenja, doduse trebalo bi u neku svoju klasu da ide
+            ],  
+          'director' => 'required',
+          'duration' => 'required|integer|between:1,500',
+          'releaseDate' => 'required',
+          'imageUrl' => 'URL',
 
 
-    ]);
+         ]);
 
         $movie = new Movie();
 
@@ -93,14 +113,20 @@ class Movies extends Controller
      */
     public function update(Request $request, $id)
     {
-        $movie = Movie::find($id);
+        $movie = Movie::findOrFail($id);
 
          $validatedData = $request->validate([
-        'title' => 'required|unique:movies|max:255',
-        'director' => 'required',
-        'duration' => 'required|integer|between:1,500',
-        'releaseDate' => 'required',
-        'imageUrl' => 'URL',
+          'title' => [
+            'required', 
+            Rule::unique('movies')
+                ->where('releaseDate', request('releaseDate'))->ignore($request->id) 
+            ],  
+          'director' => 'required',
+          'duration' => 'required|integer|between:1,500',
+          'releaseDate' => 'required',
+          'imageUrl' => 'URL',
+
+
          ]);
 
 

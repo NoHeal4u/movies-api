@@ -3,18 +3,17 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 
 class Movie extends Model
 {
     //
     public $timestamps = false;
 
-    public static function Filter($search)
+    public static function filter($title, $skip, $take)
     {
-    	if(!$search){
-    		return Movie::all();
-    	}else{
-    		return Movie::where('title', 'LIKE', '%'.$search .'%');
-    	}
+    		
+    		return self::where('title', 'LIKE', '%'.$title .'%')->skip($skip)->take($take)->get();
+    	
     }
 }
