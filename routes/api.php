@@ -12,12 +12,13 @@ use Illuminate\Http\Request;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::post('/login', 'Auth\LoginController@authenticate');
 
-Route::middleware('api')->get('/movies', 'Movies@index');
-Route::middleware('api')->post('/movies', 'Movies@store');
-Route::middleware('api')->get('/movies/{id}', 'Movies@show');
-Route::middleware('api')->put('/movies/{id}', 'Movies@update');
-Route::middleware('api')->delete('/movies/{id}', 'Movies@destroy');
+Route::middleware('jwt')->get('/movies', 'Movies@index');
+Route::middleware('jwt')->post('/movies', 'Movies@store');
+Route::middleware('jwt')->get('/movies/{id}', 'Movies@show');
+Route::middleware('jwt')->put('/movies/{id}', 'Movies@update');
+Route::middleware('jwt')->delete('/movies/{id}', 'Movies@destroy');
 
 
 
